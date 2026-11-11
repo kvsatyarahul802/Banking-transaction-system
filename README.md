@@ -151,21 +151,22 @@ This project was developed collaboratively by a team of five members. Each membe
 | Member 2 | Backend Development | Developed Python database operations and implemented deposit, withdrawal, and transaction processing. |
 | Member 3 | Data Analysis | Used Pandas and NumPy to calculate transaction totals, summaries, and monthly trends. |
 | Member 4 | Frontend and Visualisation | Developed the user interface and created charts and visual representations of transaction data. |
-| **B. Heythishwi (Member 5)** | **Integration and Testing** | **Integrated the frontend, backend, database, and analysis modules. Tested login, account viewing, deposits, withdrawals, transaction history, reports, input validation, data flow, and error handling. Identified issues and verified fixes to ensure the system worked correctly.** |
-
-### My Individual Contribution – B. Heythishwi
-
-My primary responsibility was **Integration and Testing**. My work included:
-
-- Connecting the frontend with the Flask backend.
-- Ensuring communication between Python and the MySQL database.
-- Integrating transaction and data analysis modules.
-- Testing account viewing and transaction operations.
-- Checking input validation and error handling.
-- Verifying reports and transaction summaries.
-- Identifying integration issues and checking their fixes.
-
-Through this work, I helped ensure that all project modules functioned together as a complete application.
+| Member 1 | Database Management | Designed MySQL tables, relationships, primary keys, foreign keys, and database constraints. |
+| Member 2 | Backend Development | Developed Python database operations and implemented deposit, withdrawal, and transaction processing. |
+| Member 3 | Data Analysis | Used Pandas and NumPy to calculate transaction totals, summaries, and monthly trends. |
+| Member 4 | Frontend and Visualisation | Developed the user interface and created charts and visual representations of transaction data. |
+K.V. Satya Rahul (Member 1) | Database Management | Designed and created MySQL database tables. Established relationships between tables and implemented primary keys, foreign keys, and database constraints. Managed user account details and transaction records, ensuring proper data storage, consistency, and integrity. |
+##My Individual Contribution – K.V. Satya Rahul##
+- My primary responsibility was Database Management. My work included:
+- Designing and creating MySQL database tables.
+- Establishing relationships between different database tables.
+- Defining primary keys and foreign keys.
+- Implementing database constraints to maintain data integrity.
+- Managing user account details and transaction records.
+- Ensuring proper storage and retrieval of deposit and withdrawal details.
+- Supporting backend database connectivity and query operations.
+- Maintaining database consistency and accuracy.
+- Through this work, I helped ensure that the project had a well-structured and reliable database to support all application operations.
 
 ## Future Enhancements
 
