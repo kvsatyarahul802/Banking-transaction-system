@@ -1,0 +1,2178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultView | Banking Transaction Management</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root {
+    --bg:#080808;
+    --sidebar:#111;
+    --card:#191919;
+    --orange:#ff8c00;
+    --orange2:#e67300;
+    --light-orange:#ffb347;
+    --text:#fff;
+    --muted:#b3b3b3;
+    --border:#333;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:var(--bg);color:var(--text);min-height:100vh}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+
+.sidebar{
+    width:245px;
+    background:var(--sidebar);
+    border-right:1px solid var(--border);
+    padding:25px 17px;
+    position:fixed;
+    inset:0 auto 0 0;
+    overflow-y:auto;
+    z-index:10;
+}
+
+.brand{font-size:25px;font-weight:bold;margin:5px 10px 35px;color:white}
+.brand span{color:var(--orange)}
+
+.menu-label{
+    color:var(--muted);
+    font-size:11px;
+    letter-spacing:1.5px;
+    margin:22px 10px 10px;
+    text-transform:uppercase;
+}
+
+.nav-btn{
+    width:100%;
+    border:none;
+    background:transparent;
+    color:#d1d1d1;
+    padding:13px 12px;
+    border-radius:9px;
+    text-align:left;
+    margin-bottom:5px;
+    font-size:14px;
+}
+
+.nav-btn:hover,.nav-btn.active{
+    background:#382309;
+    color:var(--orange);
+}
+
+.main{
+    margin-left:245px;
+    width:calc(100% - 245px);
+    padding:28px 35px;
+}
+
+.topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    margin-bottom:30px;
+}
+
+.topbar h1{font-size:26px}
+.topbar p{color:var(--muted);margin-top:7px;font-size:13px}
+
+.account-menu{position:relative}
+
+.profile{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--card);
+    padding:10px 15px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.avatar{
+    background:var(--orange);
+    color:#111;
+    width:36px;
+    height:36px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    font-weight:bold;
+}
+
+.profile small{
+    color:var(--muted);
+    display:block;
+    margin-top:3px;
+}
+
+.account-dropdown{
+    display:none;
+    position:absolute;
+    right:0;
+    top:calc(100% + 10px);
+    width:235px;
+    background:#191919;
+    border:1px solid #444;
+    border-radius:10px;
+    padding:12px;
+    z-index:50;
+    box-shadow:0 8px 25px rgba(0,0,0,.5);
+}
+
+.account-dropdown.show{display:block}
+
+.account-dropdown h3{
+    color:var(--orange);
+    font-size:16px;
+    margin:5px 8px;
+}
+
+.account-dropdown .username{
+    color:#aaa;
+    font-size:13px;
+    margin:8px;
+    overflow-wrap:anywhere;
+}
+
+.account-dropdown button{
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:11px;
+    background:transparent;
+    color:#ddd;
+    border:none;
+    border-radius:6px;
+    font-size:14px;
+}
+
+.account-dropdown button:hover{
+    background:#382309;
+    color:var(--orange);
+}
+
+.account-dropdown .logout-option{color:var(--orange)}
+.account-dropdown hr{border:0;border-top:1px solid #333;margin:8px 0}
+
+.page{display:none}
+.page.active{display:block}
+.section-title{font-size:19px;margin-bottom:17px}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:17px;
+    margin-bottom:25px;
+}
+
+.grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:21px;
+    border-radius:13px;
+    min-width:0;
+}
+
+.card:hover{border-color:#75430d}
+.stat-label{color:var(--muted);font-size:13px;margin-bottom:14px}
+.stat-value{font-size:25px;font-weight:bold}
+.stat-note{color:var(--muted);font-size:12px;margin-top:9px}
+.orange,.green,.red{color:var(--orange)!important}
+
+.form-card{max-width:650px}
+.form-group{margin-bottom:17px}
+
+label{
+    display:block;
+    color:#e0e0e0;
+    font-size:13px;
+    margin-bottom:8px;
+}
+
+input,select{
+    width:100%;
+    background:#101010;
+    border:1px solid var(--border);
+    color:white;
+    padding:12px 13px;
+    border-radius:8px;
+    outline:none;
+}
+
+input:focus,select:focus{
+    border-color:var(--orange);
+    box-shadow:0 0 0 2px rgba(255,140,0,.15);
+}
+
+select option{background:#171717}
+
+.btn{
+    border:none;
+    background:var(--orange);
+    color:#111;
+    padding:12px 18px;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+.btn:hover{background:var(--orange2);transform:translateY(-1px)}
+
+.btn-secondary{
+    background:#292929;
+    color:var(--orange);
+    border:1px solid #555;
+}
+
+.btn-secondary:hover{background:#383838}
+
+.table-wrap{width:100%;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+
+th,td{
+    padding:14px 12px;
+    text-align:left;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+}
+
+th{color:var(--orange);font-weight:600;background:#202020}
+td{color:#e5e5e5}
+
+.status{
+    display:inline-block;
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:bold;
+}
+
+.deposit{color:var(--orange)!important;background:#382309!important}
+.withdrawal{color:var(--light-orange)!important;background:#3d2b13!important}
+.review{color:var(--orange);background:#3b2b13}
+
+.chart-card{min-height:310px}
+.chart-card canvas{max-height:250px}
+
+.message{
+    margin-top:15px;
+    padding:12px;
+    border-radius:8px;
+    font-size:13px;
+    display:none;
+}
+
+.message.success{
+    display:block;
+    color:var(--orange);
+    background:#382309;
+}
+
+.message.error{
+    display:block;
+    color:var(--light-orange);
+    background:#3d2b13;
+}
+
+.notice{
+    background:#30200d;
+    color:#ffd28a;
+    border:1px solid #63400f;
+    padding:13px 15px;
+    border-radius:9px;
+    font-size:13px;
+    line-height:1.6;
+    margin-bottom:20px;
+}
+
+.settings-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    padding:15px 0;
+    border-bottom:1px solid var(--border);
+}
+
+.settings-row p{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:5px;
+}
+
+.empty{color:var(--muted);padding:25px;text-align:center}
+
+.mobile-menu{
+    display:none;
+    background:var(--card);
+    color:var(--orange);
+    border:1px solid var(--border);
+    padding:9px 12px;
+    border-radius:7px;
+}
+
+@media(max-width:1050px){
+    .grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:750px){
+    .sidebar{transform:translateX(-100%);transition:.25s}
+    .sidebar.open{transform:translateX(0)}
+    .main{margin-left:0;width:100%;padding:20px}
+    .mobile-menu{display:inline-block}
+    .topbar{flex-wrap:wrap}
+    .grid,.grid.two,.grid.three{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body
+    data-is-admin="{{ 'true' if session.get('role') == 'ADMIN' else 'false' }}"
+    data-username="{{ session.get('username', 'User')|e }}">
+
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+
+    <div class="brand">Vault<span>View</span></div>
+
+    <div id="userMenu">
+        <div class="menu-label">User Menu</div>
+        <button class="nav-btn active" data-page="overview">◈ Overview</button>
+        <button class="nav-btn" data-page="balance">◉ View Balance</button>
+        <button class="nav-btn" data-page="deposit">＋ Deposit Money</button>
+        <button class="nav-btn" data-page="withdraw">− Withdraw Money</button>
+        <button class="nav-btn" data-page="transfer">⇄ Send Money</button>
+        <button class="nav-btn" data-page="history">▤ Transaction History</button>
+    </div>
+
+    <div id="adminMenu" style="display:none">
+        <div class="menu-label">Admin Menu</div>
+        <button class="nav-btn" data-page="overview">◈ Overview</button>
+        <button class="nav-btn" data-page="history">▤ Transactions</button>
+        <button class="nav-btn" data-page="reports">▥ Reports & Reviews</button>
+        <button class="nav-btn" data-page="settings">⚙ Settings</button>
+    </div>
+
+</aside>
+
+<main class="main">
+
+<!-- TOPBAR -->
+<header class="topbar">
+
+    <div style="display:flex;align-items:center;gap:12px">
+        <button class="mobile-menu" id="mobileMenu">☰</button>
+
+        <div>
+            <h1 id="pageTitle">Overview</h1>
+            <p>Banking Transaction Management System</p>
+        </div>
+    </div>
+
+    <div class="account-menu">
+
+        <div class="profile" id="accountToggle">
+            <div class="avatar" id="avatar">U</div>
+
+            <div>
+                <strong id="profileName">User</strong>
+                <small id="profileRole">USER ACCOUNT</small>
+            </div>
+
+            <span style="color:#ff8c00">⌄</span>
+        </div>
+
+        <div class="account-dropdown" id="accountDropdown">
+
+            <h3>My Account</h3>
+            <div class="username" id="dropdownUsername">Username</div>
+
+            <hr>
+
+            <button type="button" id="accountProfileBtn">
+                👤 Account Profile
+            </button>
+
+            <button type="button" id="accountSettingsBtn">
+                ⚙ Settings
+            </button>
+
+            <hr>
+
+            <button type="button" class="logout-option" id="dropdownLogout">
+                ↪ Logout
+            </button>
+
+        </div>
+    </div>
+
+</header>
+
+<!-- OVERVIEW -->
+<section class="page active" id="overview">
+
+    <h2 class="section-title">Dashboard Overview</h2>
+
+    <div class="grid">
+
+        <div class="card">
+            <div class="stat-label">Total Balance</div>
+            <div class="stat-value orange" id="balanceValue">₹0.00</div>
+            <div class="stat-note">Current account balance</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Total Deposits</div>
+            <div class="stat-value orange" id="depositValue">₹0.00</div>
+            <div class="stat-note">Total deposited amount</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Total Withdrawals</div>
+            <div class="stat-value orange" id="withdrawValue">₹0.00</div>
+            <div class="stat-note">Total withdrawn amount</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Transactions</div>
+            <div class="stat-value" id="transactionValue">0</div>
+            <div class="stat-note">Recorded transactions</div>
+        </div>
+
+    </div>
+
+    <div class="grid two">
+
+        <div class="card chart-card">
+            <h3 class="section-title">Deposit vs Withdrawal</h3>
+            <canvas id="overviewChart"></canvas>
+        </div>
+
+        <div class="card chart-card">
+            <h3 class="section-title">Transaction Activity</h3>
+            <canvas id="activityChart"></canvas>
+        </div>
+
+    </div>
+
+    <div class="card">
+        <h3 class="section-title">Recent Transactions</h3>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Account ID</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody id="recentTransactions">
+                    <tr><td colspan="5" class="empty">Loading transactions...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+<!-- BALANCE -->
+<section class="page" id="balance">
+
+    <h2 class="section-title">Account Balance</h2>
+
+    <div class="grid two">
+
+        <div class="card">
+            <div class="stat-label">Available Balance</div>
+            <div class="stat-value orange" id="availableBalance">₹0.00</div>
+            <div class="stat-note">Calculated from deposits and withdrawals</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Account Information</div>
+            <p style="margin:10px 0">Account ID: <strong id="accountId">-</strong></p>
+            <p style="margin:10px 0">Account Type: <strong id="accountType">-</strong></p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- DEPOSIT -->
+<section class="page" id="deposit">
+
+    <h2 class="section-title">Deposit Money</h2>
+
+    <div class="card form-card">
+
+        <form id="depositForm">
+
+            <div class="form-group">
+                <label>Deposit Amount (₹)</label>
+                <input type="number" id="depositAmount" min="0.01" step="0.01" placeholder="Enter deposit amount" required>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="depositDescription" maxlength="200" placeholder="Enter description">
+            </div>
+
+            <button class="btn" type="submit">Deposit Money</button>
+
+            <div class="message" id="depositMessage"></div>
+
+        </form>
+
+    </div>
+
+</section>
+
+<!-- WITHDRAW -->
+<section class="page" id="withdraw">
+
+    <h2 class="section-title">Withdraw Money</h2>
+
+    <div class="card form-card">
+
+        <form id="withdrawForm">
+
+            <div class="form-group">
+                <label>Withdrawal Amount (₹)</label>
+                <input type="number" id="withdrawAmount" min="0.01" step="0.01" placeholder="Enter withdrawal amount" required>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="withdrawDescription" maxlength="200" placeholder="Enter description">
+            </div>
+
+            <button class="btn" type="submit">Withdraw Money</button>
+
+            <div class="message" id="withdrawMessage"></div>
+
+        </form>
+
+    </div>
+
+</section>
+
+<!-- TRANSFER -->
+<section class="page" id="transfer">
+
+    <h2 class="section-title">Send Money</h2>
+
+    <div class="card form-card">
+
+        <form id="transferForm">
+
+            <div class="form-group">
+                <label>Receiver Username</label>
+                <input type="text" id="receiverUsername" placeholder="Enter receiver username" required>
+            </div>
+
+            <div class="form-group">
+                <label>Transfer Amount (₹)</label>
+                <input type="number" id="transferAmount" min="0.01" step="0.01" placeholder="Enter transfer amount" required>
+            </div>
+
+            <button class="btn" type="submit">Transfer Money</button>
+
+            <div class="message" id="transferMessage"></div>
+
+        </form>
+
+    </div>
+
+</section>
+
+<!-- TRANSACTION HISTORY -->
+<section class="page" id="history">
+
+    <h2 class="section-title" id="transactionHeading">Transaction History</h2>
+
+    <div class="card form-card" id="adminTransactionForm" style="display:none;margin-bottom:25px">
+
+        <h3 class="section-title">Add New Transaction</h3>
+
+        <form id="adminAddForm">
+
+            <div class="form-group">
+                <label>Select Account</label>
+                <select id="adminAccountSelect" required>
+                    <option value="">Loading accounts...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Transaction Type</label>
+                <select id="adminTransactionType" required>
+                    <option value="">Select transaction type</option>
+                    <option value="DEPOSIT">Deposit</option>
+                    <option value="WITHDRAWAL">Withdrawal</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Amount (₹)</label>
+                <input type="number" id="adminAmount" min="0.01" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" id="adminDescription" maxlength="200">
+            </div>
+
+            <button type="submit" class="btn">Add Transaction</button>
+
+            <div class="message" id="adminTransactionMessage"></div>
+
+        </form>
+
+    </div>
+
+    <div class="card">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px">
+            <h3>All Transactions</h3>
+            <button class="btn btn-secondary" id="refreshTransactions">Refresh</button>
+        </div>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Account ID</th>
+                        <th id="transactionUserHeading">User</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+
+                <tbody id="transactionTable">
+                    <tr><td colspan="7" class="empty">Loading...</td></tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</section>
+<!-- REPORTS -->
+<section class="page" id="reports">
+
+    <h2 class="section-title">Reports & Reviews</h2>
+
+    <div class="notice">
+        This section displays synthetic customer and account records, transaction summaries, and rule-based alerts for review. Alerts do not automatically indicate fraud.
+    </div>
+
+    <div class="card" style="margin-bottom:22px">
+
+        <h3 class="section-title">Customer and Account Records</h3>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Customer ID</th>
+                        <th>Account ID</th>
+                        <th>Account Type</th>
+                    </tr>
+                </thead>
+
+                <tbody id="customerTable">
+                    <tr><td colspan="5" class="empty">Loading records...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <h3 class="section-title">Transaction Summary</h3>
+
+    <div class="grid three">
+
+        <div class="card">
+            <div class="stat-label">Total Deposits</div>
+            <div class="stat-value orange" id="reportDeposits">₹0.00</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Total Withdrawals</div>
+            <div class="stat-value orange" id="reportWithdrawals">₹0.00</div>
+        </div>
+
+        <div class="card">
+            <div class="stat-label">Net Transaction Amount</div>
+            <div class="stat-value orange" id="reportNet">₹0.00</div>
+        </div>
+
+    </div>
+
+    <div class="grid two">
+
+        <div class="card chart-card">
+            <h3 class="section-title">Deposit and Withdrawal Analysis</h3>
+            <canvas id="reportChart"></canvas>
+        </div>
+
+        <div class="card chart-card">
+            <h3 class="section-title">Monthly Transaction Trend</h3>
+            <canvas id="monthlyChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- MONTHLY ACCOUNT TYPE GRAPHS -->
+    <h3 class="section-title">Monthly Account Type Analysis</h3>
+
+    <p class="stat-note" style="margin-bottom:15px">
+        Monthly deposits and withdrawals for the year
+        <strong id="accountTypeReportYear">Current Year</strong>.
+    </p>
+
+    <div class="grid two">
+
+        <div class="card chart-card">
+            <h3 class="section-title">Savings Account – Monthly Transactions</h3>
+            <canvas id="savingsMonthlyChart"></canvas>
+        </div>
+
+        <div class="card chart-card">
+            <h3 class="section-title">Current Account – Monthly Transactions</h3>
+            <canvas id="currentMonthlyChart"></canvas>
+        </div>
+
+    </div>
+
+    <div class="card" style="margin-bottom:22px">
+
+        <h3 class="section-title">Account-wise Summary</h3>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Account ID</th>
+                        <th>Customer ID</th>
+                        <th>Account Type</th>
+                        <th>Total Transactions</th>
+                        <th>Total Deposits</th>
+                        <th>Total Withdrawals</th>
+                        <th>Calculated Balance</th>
+                    </tr>
+                </thead>
+
+                <tbody id="accountSummaryTable">
+                    <tr><td colspan="7" class="empty">Loading summary...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="card" style="margin-bottom:22px">
+
+        <h3 class="section-title">Monthly Summary</h3>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Total Transactions</th>
+                        <th>Total Deposits</th>
+                        <th>Total Withdrawals</th>
+                    </tr>
+                </thead>
+
+                <tbody id="monthlyTable">
+                    <tr><td colspan="4" class="empty">Loading monthly data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <h3 class="section-title">Unusual Transaction Review</h3>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Account ID</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Review Reason</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody id="reviewTable">
+                    <tr><td colspan="6" class="empty">Loading review records...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ACCOUNT PROFILE -->
+<section class="page" id="accountProfile">
+
+    <h2 class="section-title">Account Profile</h2>
+
+    <div class="card form-card">
+
+        <h3 class="section-title">My Account Details</h3>
+
+        <div class="settings-row">
+            <div>
+                <strong>Username</strong>
+                <p>Your registered username</p>
+            </div>
+            <span class="orange" id="accountUsername">User</span>
+        </div>
+
+        <div class="settings-row">
+            <div>
+                <strong>Account Role</strong>
+                <p>Your system access role</p>
+            </div>
+            <span class="orange" id="accountRole">USER</span>
+        </div>
+
+        <div class="settings-row">
+            <div>
+                <strong>Application</strong>
+                <p>Banking Transaction Management System</p>
+            </div>
+            <span class="orange">VaultView</span>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- SETTINGS -->
+<section class="page" id="settings">
+
+    <h2 class="section-title">Settings</h2>
+
+    <div class="card">
+
+        <h3 class="section-title">Account Settings</h3>
+
+        <div class="settings-row">
+            <div>
+                <strong>Application</strong>
+                <p>VaultView Banking Transaction Management System</p>
+            </div>
+            <span class="orange">VaultView</span>
+        </div>
+
+        <div class="settings-row">
+            <div>
+                <strong>Account Role</strong>
+                <p id="settingsRole">Standard User</p>
+            </div>
+            <span class="orange" id="settingsRoleBadge">USER</span>
+        </div>
+
+        <div class="settings-row">
+            <div>
+                <strong>Database</strong>
+                <p>Banking Analysis Database</p>
+            </div>
+            <span class="orange">Connected through Flask</span>
+        </div>
+
+        <div class="settings-row">
+            <div>
+                <strong>Logout</strong>
+                <p>End your current session.</p>
+            </div>
+            <button class="btn btn-secondary" id="settingsLogout">Logout</button>
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+</div>
+
+<script>
+
+// READ FLASK SESSION VALUES
+const IS_ADMIN = document.body.dataset.isAdmin === "true";
+const USERNAME = document.body.dataset.username || "User";
+
+const REVIEW_THRESHOLD = 10000;
+
+const DEPOSIT_COLOR = "#ff8c00";
+const WITHDRAWAL_COLOR = "#ffb347";
+const CHART_BORDER = "#191919";
+const GRID_COLOR = "#333333";
+const LABEL_COLOR = "#ffffff";
+
+let accounts = [];
+let transactions = [];
+
+let overviewChart = null;
+let activityChart = null;
+let reportChart = null;
+let monthlyChart = null;
+
+let savingsMonthlyChart = null;
+let currentMonthlyChart = null;
+
+// FORMAT MONEY
+const money = value => new Intl.NumberFormat("en-IN", {
+    style:"currency",
+    currency:"INR",
+    minimumFractionDigits:2
+}).format(Number(value || 0));
+
+// PREVENT HTML INJECTION
+const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+})[character]);
+
+// API REQUEST
+async function api(url, options = {}) {
+
+    const response = await fetch(url, {
+        credentials:"same-origin",
+        ...options,
+        headers:{
+            "Content-Type":"application/json",
+            ...(options.headers || {})
+        }
+    });
+
+    let data;
+
+    try {
+        data = await response.json();
+    } catch {
+        data = {};
+    }
+
+    if (response.status === 401) {
+        window.location.href = "/login";
+        throw new Error("Session expired. Please log in again.");
+    }
+
+    if (!response.ok) {
+        throw new Error(data.error || "Something went wrong.");
+    }
+
+    return data;
+}
+
+// HANDLE DIFFERENT API RESPONSE FORMATS
+function rowsFrom(data) {
+
+    if (Array.isArray(data)) return data;
+
+    if (Array.isArray(data?.accounts)) return data.accounts;
+
+    if (Array.isArray(data?.users)) return data.users;
+
+    if (Array.isArray(data?.data)) return data.data;
+
+    if (Array.isArray(data?.results)) return data.results;
+
+    return [];
+}
+
+// DISPLAY MESSAGE
+function showMessage(id, message, success) {
+
+    const element = document.getElementById(id);
+
+    element.textContent = message;
+    element.className = "message " + (success ? "success" : "error");
+}
+
+function clearMessage(id) {
+
+    const element = document.getElementById(id);
+
+    element.textContent = "";
+    element.className = "message";
+}
+
+// PROFILE INFORMATION
+document.getElementById("profileName").textContent = USERNAME;
+
+document.getElementById("avatar").textContent =
+    USERNAME.charAt(0).toUpperCase();
+
+document.getElementById("profileRole").textContent =
+    IS_ADMIN ? "ADMIN ACCOUNT" : "USER ACCOUNT";
+
+document.getElementById("settingsRole").textContent =
+    IS_ADMIN ? "Administrator" : "Standard User";
+
+document.getElementById("settingsRoleBadge").textContent =
+    IS_ADMIN ? "ADMIN" : "USER";
+
+document.getElementById("dropdownUsername").textContent =
+    "Username: " + USERNAME;
+
+document.getElementById("accountUsername").textContent = USERNAME;
+
+document.getElementById("accountRole").textContent =
+    IS_ADMIN ? "ADMIN" : "USER";
+
+if (IS_ADMIN) {
+
+    document.getElementById("userMenu").style.display = "none";
+    document.getElementById("adminMenu").style.display = "block";
+    document.getElementById("adminTransactionForm").style.display = "block";
+
+    document.getElementById("transactionHeading").textContent =
+        "Admin Transactions";
+
+    document.getElementById("transactionUserHeading").style.display = "";
+
+} else {
+
+    document.getElementById("transactionUserHeading").style.display = "none";
+}
+
+// ACCOUNT DROPDOWN
+const accountToggle = document.getElementById("accountToggle");
+const accountDropdown = document.getElementById("accountDropdown");
+
+accountToggle.addEventListener("click", event => {
+
+    event.stopPropagation();
+
+    accountDropdown.classList.toggle("show");
+});
+
+document.addEventListener("click", event => {
+
+    if (!event.target.closest(".account-menu")) {
+        accountDropdown.classList.remove("show");
+    }
+});
+
+// PAGE NAVIGATION
+const pageTitles = {
+    overview:"Overview",
+    balance:"View Balance",
+    deposit:"Deposit Money",
+    withdraw:"Withdraw Money",
+    transfer:"Send Money",
+    history:"Transactions",
+    reports:"Reports & Reviews",
+    settings:"Settings",
+    accountProfile:"Account Profile"
+};
+
+function showPage(pageName) {
+
+    document.querySelectorAll(".page").forEach(page => {
+        page.classList.remove("active");
+    });
+
+    document.querySelectorAll(".nav-btn[data-page]").forEach(button => {
+        button.classList.remove("active");
+    });
+
+    const selected = document.getElementById(pageName);
+
+    if (!selected) return;
+
+    selected.classList.add("active");
+
+    document.querySelectorAll('.nav-btn[data-page="' + pageName + '"]').forEach(button => {
+        button.classList.add("active");
+    });
+
+    document.getElementById("pageTitle").textContent =
+        pageTitles[pageName] || "VaultView";
+
+    document.getElementById("sidebar").classList.remove("open");
+
+    if (pageName === "overview") {
+        loadDashboard();
+        loadTransactions();
+    }
+
+    if (pageName === "balance") {
+        loadAccounts();
+    }
+
+    if (pageName === "history") {
+
+        loadTransactions();
+
+        if (IS_ADMIN) {
+            loadAdminAccounts();
+        }
+    }
+
+    if (pageName === "reports" && IS_ADMIN) {
+        loadReports();
+    }
+}
+
+// NAVIGATION BUTTONS
+document.querySelectorAll(".nav-btn[data-page]").forEach(button => {
+
+    button.addEventListener("click", () => {
+        showPage(button.dataset.page);
+    });
+});
+
+// ACCOUNT PROFILE BUTTON
+document.getElementById("accountProfileBtn").addEventListener("click", () => {
+
+    accountDropdown.classList.remove("show");
+    showPage("accountProfile");
+});
+
+// SETTINGS BUTTON
+document.getElementById("accountSettingsBtn").addEventListener("click", () => {
+
+    accountDropdown.classList.remove("show");
+    showPage("settings");
+});
+
+// MOBILE MENU
+document.getElementById("mobileMenu").addEventListener("click", () => {
+
+    document.getElementById("sidebar").classList.toggle("open");
+});
+
+// DASHBOARD
+async function loadDashboard() {
+
+    try {
+
+        const data = await api("/api/dashboard");
+
+        document.getElementById("balanceValue").textContent =
+            data.balance === null ? "Admin" : money(data.balance);
+
+        document.getElementById("depositValue").textContent =
+            money(data.total_deposits);
+
+        document.getElementById("withdrawValue").textContent =
+            money(data.total_withdrawals);
+
+        document.getElementById("transactionValue").textContent =
+            data.total_transactions ?? 0;
+
+        if (!IS_ADMIN) {
+            document.getElementById("availableBalance").textContent =
+                money(data.balance);
+        }
+
+        createOverviewChart(data.total_deposits, data.total_withdrawals);
+        createActivityChart(data);
+
+    } catch (error) {
+
+        console.error("Dashboard:", error.message);
+    }
+}
+
+// ACCOUNT DETAILS
+async function loadAccounts() {
+
+    try {
+
+        accounts = rowsFrom(await api("/api/accounts"));
+
+        if (!IS_ADMIN && accounts.length > 0) {
+
+            const account = accounts[0];
+
+            document.getElementById("availableBalance").textContent =
+                money(account.balance);
+
+            document.getElementById("accountId").textContent =
+                account.account_id;
+
+            document.getElementById("accountType").textContent =
+                account.account_type;
+        }
+
+    } catch (error) {
+
+        console.error("Accounts:", error.message);
+    }
+}
+
+// TRANSACTIONS
+async function loadTransactions() {
+
+    try {
+
+        transactions = rowsFrom(await api("/api/transactions"));
+
+        renderTransactions();
+        renderRecentTransactions();
+
+        if (IS_ADMIN) {
+            renderReviewTable();
+        }
+
+    } catch (error) {
+
+        console.error("Transactions:", error.message);
+    }
+}
+
+function renderTransactions() {
+
+    const tbody = document.getElementById("transactionTable");
+
+    if (!transactions.length) {
+
+        tbody.innerHTML =
+            '<tr><td colspan="7" class="empty">No transactions found.</td></tr>';
+
+        return;
+    }
+
+    tbody.innerHTML = transactions.map(item => `
+
+        <tr>
+
+            <td>${escapeHTML(item.transaction_id)}</td>
+            <td>${escapeHTML(item.account_id)}</td>
+
+            <td class="transaction-user">
+                ${escapeHTML(item.username || "-")}
+            </td>
+
+            <td>${escapeHTML(item.transaction_date || "-")}</td>
+
+            <td>
+                <span class="status ${item.transaction_type === "DEPOSIT" ? "deposit" : "withdrawal"}">
+                    ${escapeHTML(item.transaction_type)}
+                </span>
+            </td>
+
+            <td>${money(item.amount)}</td>
+            <td>${escapeHTML(item.description || "-")}</td>
+
+        </tr>
+
+    `).join("");
+
+    document.querySelectorAll(".transaction-user").forEach(cell => {
+
+        if (!IS_ADMIN) {
+            cell.style.display = "none";
+        }
+    });
+}
+
+function renderRecentTransactions() {
+
+    const tbody = document.getElementById("recentTransactions");
+
+    if (!transactions.length) {
+
+        tbody.innerHTML =
+            '<tr><td colspan="5" class="empty">No transactions found.</td></tr>';
+
+        return;
+    }
+
+    tbody.innerHTML = transactions.slice(0, 5).map(item => `
+
+        <tr>
+
+            <td>${escapeHTML(item.transaction_id)}</td>
+            <td>${escapeHTML(item.account_id)}</td>
+            <td>${escapeHTML(item.transaction_date || "-")}</td>
+
+            <td>
+                <span class="status ${item.transaction_type === "DEPOSIT" ? "deposit" : "withdrawal"}">
+                    ${escapeHTML(item.transaction_type)}
+                </span>
+            </td>
+
+            <td>${money(item.amount)}</td>
+
+        </tr>
+
+    `).join("");
+}
+
+// OVERVIEW CHART
+function createOverviewChart(deposits, withdrawals) {
+
+    if (overviewChart) {
+        overviewChart.destroy();
+    }
+
+    overviewChart = new Chart(document.getElementById("overviewChart"), {
+
+        type:"doughnut",
+
+        data:{
+            labels:["Deposits","Withdrawals"],
+
+            datasets:[{
+                data:[
+                    Number(deposits || 0),
+                    Number(withdrawals || 0)
+                ],
+                backgroundColor:[DEPOSIT_COLOR, WITHDRAWAL_COLOR],
+                borderColor:CHART_BORDER,
+                borderWidth:2,
+                hoverOffset:8
+            }]
+        },
+
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+
+            plugins:{
+                legend:{
+                    labels:{color:LABEL_COLOR}
+                }
+            }
+        }
+    });
+}
+
+// ACTIVITY CHART
+function createActivityChart(data) {
+
+    if (activityChart) {
+        activityChart.destroy();
+    }
+
+    activityChart = new Chart(document.getElementById("activityChart"), {
+
+        type:"bar",
+
+        data:{
+            labels:["Deposits","Withdrawals"],
+
+            datasets:[{
+                label:"Amount (₹)",
+
+                data:[
+                    Number(data.total_deposits || 0),
+                    Number(data.total_withdrawals || 0)
+                ],
+
+                backgroundColor:[DEPOSIT_COLOR, WITHDRAWAL_COLOR],
+                borderColor:[DEPOSIT_COLOR, WITHDRAWAL_COLOR],
+                borderWidth:1,
+                borderRadius:6
+            }]
+        },
+
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+
+            scales:{
+                x:{
+                    ticks:{color:LABEL_COLOR},
+                    grid:{color:GRID_COLOR}
+                },
+
+                y:{
+                    beginAtZero:true,
+                    ticks:{
+                        color:LABEL_COLOR,
+                        callback:value => "₹" + Number(value).toLocaleString("en-IN")
+                    },
+                    grid:{color:GRID_COLOR}
+                }
+            },
+
+            plugins:{
+                legend:{display:false}
+            }
+        }
+    });
+}
+
+// DEPOSIT AND WITHDRAWAL
+async function submitTransaction(type, amountId, descriptionId, messageId) {
+
+    clearMessage(messageId);
+
+    const amount = document.getElementById(amountId).value;
+    const description = document.getElementById(descriptionId).value;
+
+    if (!amount || Number(amount) <= 0) {
+        showMessage(messageId, "Enter a valid positive amount.", false);
+        return;
+    }
+
+    try {
+
+        const result = await api("/api/transactions", {
+            method:"POST",
+
+            body:JSON.stringify({
+                transaction_type:type,
+                amount:amount,
+                description:description
+            })
+        });
+
+        showMessage(messageId, result.message || "Transaction successful.", true);
+
+        document.getElementById(amountId).value = "";
+        document.getElementById(descriptionId).value = "";
+
+        await loadDashboard();
+        await loadAccounts();
+        await loadTransactions();
+
+    } catch (error) {
+
+        showMessage(messageId, error.message, false);
+    }
+}
+
+document.getElementById("depositForm").addEventListener("submit", event => {
+
+    event.preventDefault();
+
+    submitTransaction(
+        "DEPOSIT",
+        "depositAmount",
+        "depositDescription",
+        "depositMessage"
+    );
+});
+
+document.getElementById("withdrawForm").addEventListener("submit", event => {
+
+    event.preventDefault();
+
+    submitTransaction(
+        "WITHDRAWAL",
+        "withdrawAmount",
+        "withdrawDescription",
+        "withdrawMessage"
+    );
+});
+
+// MONEY TRANSFER
+document.getElementById("transferForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    const username = document.getElementById("receiverUsername").value.trim();
+    const amount = document.getElementById("transferAmount").value;
+
+    clearMessage("transferMessage");
+
+    if (!username || Number(amount) <= 0) {
+        showMessage("transferMessage", "Enter valid transfer details.", false);
+        return;
+    }
+
+    try {
+
+        const result = await api("/api/transfer", {
+            method:"POST",
+
+            body:JSON.stringify({
+                receiver_username:username,
+                amount:amount
+            })
+        });
+
+        showMessage("transferMessage", result.message || "Transfer successful.", true);
+
+        document.getElementById("transferForm").reset();
+
+        await loadDashboard();
+        await loadTransactions();
+        await loadAccounts();
+
+    } catch (error) {
+
+        showMessage("transferMessage", error.message, false);
+    }
+});
+
+// ADMIN ACCOUNT DROPDOWN
+async function loadAdminAccounts() {
+
+    if (!IS_ADMIN) return;
+
+    try {
+
+        accounts = rowsFrom(await api("/api/accounts"));
+
+        const select = document.getElementById("adminAccountSelect");
+
+        select.innerHTML = '<option value="">Select an account</option>';
+
+        accounts.forEach(account => {
+
+            const option = document.createElement("option");
+
+            option.value = account.account_id;
+
+            option.textContent =
+                "Account " + account.account_id + " - " +
+                (account.display_name || account.username || "Customer") +
+                " (" + account.account_type + ")";
+
+            select.appendChild(option);
+        });
+
+    } catch (error) {
+
+        console.error("Admin accounts:", error.message);
+    }
+}
+
+// ADMIN ADD TRANSACTION
+document.getElementById("adminAddForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    clearMessage("adminTransactionMessage");
+
+    const accountId = document.getElementById("adminAccountSelect").value;
+    const transactionType = document.getElementById("adminTransactionType").value;
+    const amount = document.getElementById("adminAmount").value;
+    const description = document.getElementById("adminDescription").value.trim();
+
+    if (!accountId || !transactionType || Number(amount) <= 0) {
+
+        showMessage(
+            "adminTransactionMessage",
+            "Please select an account, transaction type and valid amount.",
+            false
+        );
+
+        return;
+    }
+
+    try {
+
+        const result = await api("/api/admin/transactions", {
+
+            method:"POST",
+
+            body:JSON.stringify({
+                account_id:accountId,
+                transaction_type:transactionType,
+                amount:amount,
+                description:description
+            })
+        });
+
+        showMessage(
+            "adminTransactionMessage",
+            result.message || "Transaction added successfully.",
+            true
+        );
+
+        document.getElementById("adminAddForm").reset();
+
+        await loadTransactions();
+        await loadDashboard();
+        await loadReports();
+
+    } catch (error) {
+
+        showMessage("adminTransactionMessage", error.message, false);
+    }
+});
+// ADMIN REPORTS
+async function loadReports() {
+
+    if (!IS_ADMIN) return;
+
+    try {
+
+        // Load the main reports independently of the new monthly chart API.
+        const results = await Promise.allSettled([
+            api("/api/accounts"),
+            api("/api/users"),
+            api("/api/reports/summary"),
+            api("/api/reports/monthly"),
+            api("/api/reports/account-summary")
+        ]);
+
+        const [accountResult, usersResult, summaryResult,
+               monthlyResult, accountSummaryResult] = results;
+
+        // Check whether the main API requests succeeded.
+        const failed = results.filter(result => result.status === "rejected");
+
+        if (failed.length > 0) {
+            console.error("Some report APIs failed:", failed);
+        }
+
+        const accountRows = accountResult.status === "fulfilled"
+            ? rowsFrom(accountResult.value) : [];
+
+        const users = usersResult.status === "fulfilled"
+            ? rowsFrom(usersResult.value) : [];
+
+        const summary = summaryResult.status === "fulfilled"
+            ? summaryResult.value : {};
+
+        const monthly = monthlyResult.status === "fulfilled"
+            ? rowsFrom(monthlyResult.value) : [];
+
+        const accountSummary = accountSummaryResult.status === "fulfilled"
+            ? rowsFrom(accountSummaryResult.value) : [];
+
+        // Display the records even if one report API fails.
+        renderCustomerTable(accountRows, users);
+        renderReportSummary(summary);
+        renderMonthlyTable(monthly);
+        renderAccountSummary(accountSummary);
+
+        createReportCharts(summary, monthly);
+
+        // Load the additional account-type chart separately.
+        try {
+
+            const accountTypeMonthly = await api(
+                "/api/reports/account-type-monthly"
+            );
+
+            createAccountTypeMonthlyCharts(accountTypeMonthly);
+
+        } catch (chartError) {
+
+            console.error(
+                "Account-type monthly chart:",
+                chartError.message
+            );
+
+            createAccountTypeMonthlyCharts({});
+        }
+
+        await loadTransactions();
+
+    } catch (error) {
+
+        console.error("Reports:", error.message);
+    }
+}
+
+
+// CUSTOMER AND ACCOUNT RECORDS
+function renderCustomerTable(accountRows, users) {
+
+    const tbody = document.getElementById("customerTable");
+
+    if (!accountRows.length) {
+
+        tbody.innerHTML =
+            '<tr><td colspan="5" class="empty">No account records found.</td></tr>';
+
+        return;
+    }
+
+    tbody.innerHTML = accountRows.map(account => {
+
+        const user = users.find(item =>
+            Number(item.customer_id) === Number(account.customer_id)
+        );
+
+        return `
+            <tr>
+                <td>${escapeHTML(user?.user_id ?? "-")}</td>
+                <td>${escapeHTML(account.username || user?.username || "-")}</td>
+                <td>${escapeHTML(account.customer_id)}</td>
+                <td>${escapeHTML(account.account_id)}</td>
+                <td>${escapeHTML(account.account_type)}</td>
+            </tr>
+        `;
+
+    }).join("");
+}
+
+
+// REPORT SUMMARY
+function renderReportSummary(data) {
+
+    const deposits = Number(data.total_deposits || 0);
+    const withdrawals = Number(data.total_withdrawals || 0);
+
+    document.getElementById("reportDeposits").textContent =
+        money(deposits);
+
+    document.getElementById("reportWithdrawals").textContent =
+        money(withdrawals);
+
+    document.getElementById("reportNet").textContent =
+        money(deposits - withdrawals);
+}
+
+
+// ACCOUNT-WISE SUMMARY
+function renderAccountSummary(rows) {
+
+    const tbody = document.getElementById("accountSummaryTable");
+
+    if (!rows.length) {
+
+        tbody.innerHTML =
+            '<tr><td colspan="7" class="empty">No account summary available.</td></tr>';
+
+        return;
+    }
+
+    tbody.innerHTML = rows.map(item => {
+
+        const balance =
+            Number(item.total_deposits || 0) -
+            Number(item.total_withdrawals || 0);
+
+        return `
+            <tr>
+                <td>${escapeHTML(item.account_id)}</td>
+                <td>${escapeHTML(item.customer_id)}</td>
+                <td>${escapeHTML(item.account_type)}</td>
+                <td>${escapeHTML(item.total_transactions ?? 0)}</td>
+                <td class="orange">${money(item.total_deposits)}</td>
+                <td class="orange">${money(item.total_withdrawals)}</td>
+                <td class="orange">${money(balance)}</td>
+            </tr>
+        `;
+
+    }).join("");
+}
+
+
+// MONTHLY SUMMARY TABLE
+function renderMonthlyTable(rows) {
+
+    const tbody = document.getElementById("monthlyTable");
+
+    if (!rows.length) {
+
+        tbody.innerHTML =
+            '<tr><td colspan="4" class="empty">No monthly records found.</td></tr>';
+
+        return;
+    }
+
+    tbody.innerHTML = rows.map(item => `
+        <tr>
+            <td>${escapeHTML(item.month)}</td>
+            <td>${escapeHTML(item.total_transactions ?? 0)}</td>
+            <td class="orange">${money(item.total_deposits)}</td>
+            <td class="orange">${money(item.total_withdrawals)}</td>
+        </tr>
+    `).join("");
+}
+
+
+// REPORT CHARTS
+function createReportCharts(summary, monthly) {
+
+    const deposits = Number(summary.total_deposits || 0);
+    const withdrawals = Number(summary.total_withdrawals || 0);
+
+    if (reportChart) {
+        reportChart.destroy();
+    }
+
+    reportChart = new Chart(
+        document.getElementById("reportChart"),
+        {
+            type: "bar",
+
+            data: {
+                labels: ["Deposits", "Withdrawals"],
+
+                datasets: [{
+                    label: "Amount (₹)",
+                    data: [deposits, withdrawals],
+                    backgroundColor: [
+                        DEPOSIT_COLOR,
+                        WITHDRAWAL_COLOR
+                    ],
+                    borderColor: [
+                        DEPOSIT_COLOR,
+                        WITHDRAWAL_COLOR
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: { display: false }
+                },
+
+                scales: {
+                    x: {
+                        ticks: { color: LABEL_COLOR },
+                        grid: { color: GRID_COLOR }
+                    },
+
+                    y: {
+                        beginAtZero: true,
+
+                        ticks: {
+                            color: LABEL_COLOR,
+                            callback: value =>
+                                "₹" + Number(value).toLocaleString("en-IN")
+                        },
+
+                        grid: { color: GRID_COLOR }
+                    }
+                }
+            }
+        }
+    );
+
+    if (monthlyChart) {
+        monthlyChart.destroy();
+    }
+
+    monthlyChart = new Chart(
+        document.getElementById("monthlyChart"),
+        {
+            type: "line",
+
+            data: {
+                labels: monthly.map(item => item.month),
+
+                datasets: [
+                    {
+                        label: "Deposits",
+                        data: monthly.map(item =>
+                            Number(item.total_deposits || 0)
+                        ),
+                        borderColor: DEPOSIT_COLOR,
+                        backgroundColor: DEPOSIT_COLOR,
+                        tension: 0.3,
+                        fill: false
+                    },
+
+                    {
+                        label: "Withdrawals",
+                        data: monthly.map(item =>
+                            Number(item.total_withdrawals || 0)
+                        ),
+                        borderColor: WITHDRAWAL_COLOR,
+                        backgroundColor: WITHDRAWAL_COLOR,
+                        tension: 0.3,
+                        fill: false
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                scales: {
+                    x: {
+                        ticks: { color: LABEL_COLOR },
+                        grid: { color: GRID_COLOR }
+                    },
+
+                    y: {
+                        beginAtZero: true,
+
+                        ticks: {
+                            color: LABEL_COLOR,
+                            callback: value =>
+                                "₹" + Number(value).toLocaleString("en-IN")
+                        },
+
+                        grid: { color: GRID_COLOR }
+                    }
+                },
+
+                plugins: {
+                    legend: {
+                        labels: { color: LABEL_COLOR }
+                    }
+                }
+            }
+        }
+    );
+}
+
+
+// SAVINGS AND CURRENT ACCOUNT MONTHLY GRAPHS
+function createAccountTypeMonthlyCharts(report = {}) {
+
+    const yearElement =
+        document.getElementById("accountTypeReportYear");
+
+    if (yearElement) {
+        yearElement.textContent =
+            report.year || new Date().getFullYear();
+    }
+
+    const defaultMonths = [
+        "January", "February", "March", "April",
+        "May", "June", "July", "August",
+        "September", "October", "November", "December"
+    ];
+
+    function createMonthlyChart(canvasId, accountData, existingChart) {
+
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        const canvas = document.getElementById(canvasId);
+
+        if (!canvas) return null;
+
+        accountData = accountData || {};
+
+        const months = accountData.months || defaultMonths;
+
+        return new Chart(canvas, {
+
+            type: "line",
+
+            data: {
+                labels: months,
+
+                datasets: [
+                    {
+                        label: "Deposits",
+
+                        data: accountData.deposits ||
+                            Array(12).fill(0),
+
+                        borderColor: DEPOSIT_COLOR,
+                        backgroundColor: DEPOSIT_COLOR,
+                        pointBackgroundColor: DEPOSIT_COLOR,
+                        tension: 0.3,
+                        fill: false
+                    },
+
+                    {
+                        label: "Withdrawals",
+
+                        data: accountData.withdrawals ||
+                            Array(12).fill(0),
+
+                        borderColor: WITHDRAWAL_COLOR,
+                        backgroundColor: WITHDRAWAL_COLOR,
+                        pointBackgroundColor: WITHDRAWAL_COLOR,
+                        tension: 0.3,
+                        fill: false
+                    }
+                ]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                scales: {
+                    x: {
+                        ticks: { color: LABEL_COLOR },
+                        grid: { color: GRID_COLOR }
+                    },
+
+                    y: {
+                        beginAtZero: true,
+
+                        title: {
+                            display: true,
+                            text: "Amount (₹)",
+                            color: LABEL_COLOR
+                        },
+
+                        ticks: {
+                            color: LABEL_COLOR,
+                            callback: value =>
+                                "₹" + Number(value).toLocaleString("en-IN")
+                        },
+
+                        grid: { color: GRID_COLOR }
+                    }
+                },
+
+                plugins: {
+                    legend: {
+                        labels: { color: LABEL_COLOR }
+                    },
+
+                    tooltip: {
+                        callbacks: {
+                            label: context =>
+                                context.dataset.label + ": " +
+                                money(context.parsed.y)
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    savingsMonthlyChart = createMonthlyChart(
+        "savingsMonthlyChart",
+        report.SAVINGS,
+        savingsMonthlyChart
+    );
+
+    currentMonthlyChart = createMonthlyChart(
+        "currentMonthlyChart",
+        report.CURRENT,
+        currentMonthlyChart
+    );
+}
+
+
+// UNUSUAL TRANSACTION REVIEW
+function renderReviewTable() {
+
+    const tbody = document.getElementById("reviewTable");
+
+    const flagged = transactions.filter(item =>
+        Number(item.amount) >= REVIEW_THRESHOLD
+    );
+
+    if (!flagged.length) {
+
+        tbody.innerHTML =
+            '<tr><td colspan="6" class="empty">No transactions currently meet the review threshold.</td></tr>';
+
+        return;
+    }
+
+    tbody.innerHTML = flagged.map(item => `
+        <tr>
+            <td>${escapeHTML(item.transaction_id)}</td>
+            <td>${escapeHTML(item.account_id)}</td>
+            <td>${escapeHTML(item.transaction_type)}</td>
+            <td>${money(item.amount)}</td>
+            <td>Amount is ₹10,000 or more</td>
+            <td>
+                <span class="status review">Review Required</span>
+            </td>
+        </tr>
+    `).join("");
+}
+
+
+// REFRESH TRANSACTIONS
+document.getElementById("refreshTransactions")
+    .addEventListener("click", async () => {
+
+        await loadTransactions();
+
+        if (IS_ADMIN) {
+            await loadAdminAccounts();
+        }
+    });
+
+
+// LOGOUT
+async function logout() {
+
+    try {
+
+        const response = await fetch("/logout", {
+            method: "GET",
+            credentials: "same-origin"
+        });
+
+        if (response.redirected) {
+
+            window.location.href = response.url;
+
+        } else if (response.ok) {
+
+            window.location.href = "/login";
+
+        } else {
+
+            alert("Unable to log out. Please try again.");
+        }
+
+    } catch (error) {
+
+        alert("Logout failed. Please try again.");
+    }
+}
+
+document.getElementById("settingsLogout")
+    .addEventListener("click", logout);
+
+document.getElementById("dropdownLogout")
+    .addEventListener("click", () => {
+
+        accountDropdown.classList.remove("show");
+        logout();
+    });
+
+
+// INITIAL LOAD
+async function initializeApp() {
+
+    await loadDashboard();
+    await loadAccounts();
+    await loadTransactions();
+
+    if (IS_ADMIN) {
+        await loadAdminAccounts();
+    }
+}
+
+initializeApp();
+
+</script>
+
+</body>
+</html>
