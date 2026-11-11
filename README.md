@@ -68,8 +68,7 @@ The database name used by the project is `banking_analysis`.
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
-cd <your-project-folder>
+git clone https://github.com/kvsatyarahul802/Banking-transaction-system.git
 ```
 
 ### 2. Create the Database
@@ -156,7 +155,9 @@ This project was developed collaboratively by a team of five members. Each membe
 | Member 3 | Data Analysis | Used Pandas and NumPy to calculate transaction totals, summaries, and monthly trends. |
 | Member 4 | Frontend and Visualisation | Developed the user interface and created charts and visual representations of transaction data. |
 K.V. Satya Rahul (Member 1) | Database Management | Designed and created MySQL database tables. Established relationships between tables and implemented primary keys, foreign keys, and database constraints. Managed user account details and transaction records, ensuring proper data storage, consistency, and integrity. |
-##My Individual Contribution – K.V. Satya Rahul##
+
+
+My Individual Contribution – K.V. Satya Rahul
 - My primary responsibility was Database Management. My work included:
 - Designing and creating MySQL database tables.
 - Establishing relationships between different database tables.
